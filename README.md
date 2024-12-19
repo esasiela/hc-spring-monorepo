@@ -8,3 +8,4 @@ This monorepo has two children:
 2. `hc-auth-api` - the implementation of HC Auth API, also serving as the reference for other HC
    services.
 
+The project is also a test bed for GitHub actions.
