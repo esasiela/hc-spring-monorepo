@@ -27,14 +27,20 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-      - name: Maven Verify
+
+      - name: Maven verify
         run: mvn --batch-mode --update-snapshots verify
-      - name: Maven Package
-        run: mvn --batch-mode package
+
       - name: Inspect hc-auth-api/target
         run: ls -lart hc-auth-api/target
-      #- name: Build with Maven
-      #  run: mvn -B package --file pom.xml
+
+      - name: Report non-main branch
+        if: github.ref != 'refs/heads/main'
+        run: echo 'Not on [main] branch, skipping docker image build'
+
+      - name: Build docker image (main)
+        if: github.ref == 'refs/heads/main'
+        run: mvn --batch-mode install
 
       # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
       #- name: Update dependency graph
