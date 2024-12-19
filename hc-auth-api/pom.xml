@@ -26,6 +26,7 @@
 
   <build>
     <plugins>
+
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
@@ -38,6 +39,7 @@
         </executions>
         <configuration>
           <mainClass>com.hedgecourt.auth.HcAuthApiApplication</mainClass>
+          <finalName>${artifactId}</finalName>
         </configuration>
       </plugin>
 
@@ -77,7 +79,6 @@
         <artifactId>maven-pmd-plugin</artifactId>
         <version>3.26.0</version>
         <executions>
-          <!-- Run PMD during the "verify" phase -->
           <execution>
             <phase>verify</phase>
             <goals>
@@ -86,18 +87,14 @@
           </execution>
         </executions>
         <configuration>
-          <!-- Enable or disable the plugin -->
           <skip>false</skip>
-          <!-- Path to the PMD ruleset -->
           <rulesets>
             <ruleset>/rulesets/java/quickstart.xml</ruleset>
           </rulesets>
           <excludes>
             <exclude>**/HcAuthApiApplication.java</exclude>
           </excludes>
-          <!-- Optional: Set the minimum priority to report issues -->
           <minimumPriority>3</minimumPriority>
-          <!-- Output format -->
           <linkXref>false</linkXref>
           <printFailingErrors>true</printFailingErrors>
           <failOnViolation>true</failOnViolation>
