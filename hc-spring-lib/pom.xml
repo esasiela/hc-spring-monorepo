@@ -11,21 +11,12 @@
   <version>1.0.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-
   <distributionManagement>
     <repository>
       <id>github</id>
       <url>https://maven.pkg.github.com/${github.repository_owner}/hc-spring-monorepo</url>
     </repository>
   </distributionManagement>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <id>github</id>
-      <url>https://maven.pkg.github.com/${github.repository_owner}/hc-spring-monorepo</url>
-    </pluginRepository>
-  </pluginRepositories>
-
 
   <dependencies>
     <dependency>
