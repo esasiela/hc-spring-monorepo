@@ -1,4 +1,4 @@
-name: Verify Build
+name: Verify and Publish
 
 on:
   push:
@@ -157,6 +157,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
 
     steps:
       - name: Checkout GitHub repo
