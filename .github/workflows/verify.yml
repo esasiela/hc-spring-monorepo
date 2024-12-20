@@ -7,12 +7,13 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
-
+  maven:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout GitHub repo
+        uses: actions/checkout@v4
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -31,9 +32,35 @@ jobs:
       - name: Maven verify
         run: mvn --batch-mode --update-snapshots verify
 
+      - name: Inspect working directory
+        run: |
+          echo "Working directory..."
+          pwd
+          ls -lart
+
+      - name: List target dirs
+        run: find . -type d -name "target"
+
+      - name: Inspect hc-spring-lib/target
+        run: ls -lart hc-spring-lib/target
+
       - name: Inspect hc-auth-api/target
         run: ls -lart hc-auth-api/target
+
 
       # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
       #- name: Update dependency graph
       #  uses: advanced-security/maven-dependency-submission-action@571e99aab1055c2e71a1e2309b9691de18d6b7d6
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: maven
+    steps:
+      - name: Inspect working directory
+        run: |
+          echo "Working directory..."
+          pwd
+          ls -lart
+
+      - name: List target dirs
+        run: find . -type d -name "target"
