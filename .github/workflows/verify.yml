@@ -116,6 +116,7 @@ jobs:
 
       - name: Build and push Docker image to GitHub Container registry
         id: push
+        working-directory: hc-auth-api
         uses: docker/build-push-action@v6
         with:
           context: .
