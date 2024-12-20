@@ -31,6 +31,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Inspect working directory
+        run: |
+          echo "Working directory..."
+          pwd
+          ls -lart
+
+      - name: Inspect hc-auth-api
+        run: ls -lart hc-auth-api
+
       - name: Login to GitHub Container registry
         uses: docker/login-action@v3
         with:
