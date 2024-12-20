@@ -8,13 +8,18 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  #IMAGE_NAME: ${{ github.repository }}
+  # the github.repository is hc-spring-monorepo
+  IMAGE_NAME: hc-auth-api
 
 jobs:
   build-docker:
     if: ${{ success() && github.ref == 'refs/heads/main' }}
 
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./hc-auth-api
 
     permissions:
       contents: read
