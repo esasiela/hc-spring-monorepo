@@ -63,6 +63,10 @@ jobs:
 
     runs-on: ubuntu-latest
     needs: maven
+    defaults:
+      run:
+        working-directory: hc-auth-api
+
     steps:
       - name: Checkout GitHub repo
         uses: actions/checkout@v4
@@ -71,7 +75,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: maven-target
-          path: hc-auth-api/target/
+          path: target/
 
       - name: Inspect working directory
         run: |
@@ -82,5 +86,5 @@ jobs:
       - name: List target dirs
         run: find . -type d -name "target"
 
-      - name: Inspect hc-auth-api/target
-        run: ls -lart hc-auth-api/target
+      - name: Inspect target
+        run: ls -lart target
