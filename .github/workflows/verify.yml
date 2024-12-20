@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  REGISTRY: ghcr.io
+  # the github.repository is hc-spring-monorepo
+  #IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: hc-auth-api
+
 jobs:
   maven:
     runs-on: ubuntu-latest
@@ -67,6 +73,12 @@ jobs:
       run:
         working-directory: hc-auth-api
 
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+
     steps:
       - name: Checkout GitHub repo
         uses: actions/checkout@v4
@@ -88,3 +100,32 @@ jobs:
 
       - name: Inspect target
         run: ls -lart target
+
+      - name: Login to GitHub Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Build and push Docker image to GitHub Container registry
+        id: push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ${{ env.REGISTRY }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
