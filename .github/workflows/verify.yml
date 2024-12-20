@@ -112,7 +112,8 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}
+          # ghcr.io/<your_username>/hc-auth-api:main
 
       - name: Build and push Docker image to GitHub Container registry
         id: push
