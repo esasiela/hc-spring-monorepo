@@ -8,4 +8,7 @@ This monorepo has two children:
 2. `hc-auth-api` - the implementation of HC Auth API, also serving as the reference for other HC
    services.
 
-The project is also a test bed for GitHub actions. It will run the maven validation & testing steps.
+## Package Repository
+
+Any consumable artifacts from this project are in
+[GitHub Packages](https://github.com/esasiela/hc-spring-monorepo/packages/).
