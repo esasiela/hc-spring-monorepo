@@ -1,6 +1,6 @@
 package com.hedgecourt.auth;
 
-import com.hedgecourt.spring.HelloWorld;
+import com.hedgecourt.spring.lib.HelloWorld;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 

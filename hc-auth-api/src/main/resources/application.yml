@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: hc-auth-api
+
+  jackson:
+    serialization:
+      indent_output: true
+
+logging:
+  level:
+    root: INFO
+    com:
+      hedgecourt: DEBUG

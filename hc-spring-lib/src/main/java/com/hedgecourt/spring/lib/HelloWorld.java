@@ -1,4 +1,4 @@
-package com.hedgecourt.spring;
+package com.hedgecourt.spring.lib;
 
 public final class HelloWorld {
 
