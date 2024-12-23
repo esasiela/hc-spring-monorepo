@@ -8,7 +8,7 @@ public class HelloWorldTest {
 
   @Test
   void testSayHello() {
-    String expected = "Hello, World ghi!";
+    String expected = "Hello, World!";
     String actual = HelloWorld.sayHello();
     assertEquals(expected, actual, "The sayHello method should return the correct greeting");
   }

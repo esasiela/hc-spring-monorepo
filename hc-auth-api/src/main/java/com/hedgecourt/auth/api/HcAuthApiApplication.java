@@ -1,4 +1,4 @@
-package com.hedgecourt.auth;
+package com.hedgecourt.auth.api;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

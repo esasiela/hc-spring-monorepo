@@ -1,4 +1,4 @@
-package com.hedgecourt.auth;
+package com.hedgecourt.auth.api;
 
 import com.hedgecourt.spring.lib.HelloWorld;
 import org.springframework.web.bind.annotation.GetMapping;
