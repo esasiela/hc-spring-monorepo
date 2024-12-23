@@ -33,16 +33,26 @@
         <executions>
           <execution>
             <goals>
+              <goal>build-info</goal>
               <goal>repackage</goal>
             </goals>
           </execution>
         </executions>
         <configuration>
+          <outputFile>
+            ${project.build.outputDirectory}/META-INF/build-info.${project.artifactId}.properties
+          </outputFile>
+          <additionalProperties>
+            <git.commit.id.abbrev>${git.commit.id.abbrev}</git.commit.id.abbrev>
+            <git.commit.id.full>${git.commit.id.full}</git.commit.id.full>
+          </additionalProperties>
+
           <mainClass>com.hedgecourt.auth.HcAuthApiApplication</mainClass>
-          <finalName>${artifactId}</finalName>
+          <finalName>${project.artifactId}</finalName>
         </configuration>
       </plugin>
 
+      <!--
       <plugin>
         <groupId>com.spotify</groupId>
         <artifactId>dockerfile-maven-plugin</artifactId>
@@ -64,14 +74,11 @@
           </execution>
         </executions>
         <configuration>
-          <!--
-          <dockerfile>${project.basedir}/Dockerfile</dockerfile>
-          <contextDirectory>${project.basedir}</contextDirectory>
-          -->
           <tag>${project.version}</tag>
           <repository>${artifactId}</repository>
         </configuration>
       </plugin>
+      -->
 
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
@@ -125,7 +132,7 @@
             <exclude>**/HcAuthApiApplication.java</exclude>
           </excludes>
           <minimumPriority>3</minimumPriority>
-          <linkXref>false</linkXref>
+          <linkXRef>false</linkXRef>
           <printFailingErrors>true</printFailingErrors>
           <failOnViolation>true</failOnViolation>
         </configuration>

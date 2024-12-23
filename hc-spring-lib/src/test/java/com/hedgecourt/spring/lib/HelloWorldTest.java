@@ -1,4 +1,4 @@
-package com.hedgecourt.spring;
+package com.hedgecourt.spring.lib;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
