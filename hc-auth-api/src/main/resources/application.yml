@@ -1,6 +1,8 @@
 spring:
   application:
     name: hc-auth-api
+  security:
+    enabled: false
 
   jackson:
     serialization:
@@ -9,5 +11,34 @@ spring:
 logging:
   level:
     root: INFO
-    com:
-      hedgecourt: DEBUG
+    com.hedgecourt: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.web.filter: DEBUG
+    org.springframework.web.servlet.DispatcherServlet: DEBUG
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+hc:
+  env: dev
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+
+hc:
+  env: test
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+hc:
+  env: prod

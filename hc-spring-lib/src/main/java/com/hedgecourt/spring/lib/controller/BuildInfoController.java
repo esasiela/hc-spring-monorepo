@@ -1,5 +1,6 @@
 package com.hedgecourt.spring.lib.controller;
 
+import com.hedgecourt.spring.lib.error.BuildInfoException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +16,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Provide JSON formatted information about the build for each of the HC modules included with this
+ * project. The purpose is to aid diagnosis of environmental issues. All HC modules are expected to
+ * include a META-INF/build-info.[ARTIFACT_ID].properties file with relevant details.
+ */
 @RestController
 @RequestMapping("/build-info")
 public class BuildInfoController {
@@ -49,8 +55,8 @@ public class BuildInfoController {
         }
       }
     } catch (IOException e) {
-      log.error("Failed scanning for META-INF/build-info.hc*", e);
-      throw new RuntimeException(e);
+      log.error("Failed scanning for META-INF/build-info.(.*).properties", e);
+      throw new BuildInfoException(e);
     }
 
     return buildInfoMap;
