@@ -1,5 +1,6 @@
 package com.hedgecourt.spring.lib.controller;
 
+import com.hedgecourt.spring.lib.dto.BuildInfoDto;
 import com.hedgecourt.spring.lib.error.BuildInfoException;
 import java.io.IOException;
 import java.util.HashMap;
@@ -9,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -27,8 +29,17 @@ public class BuildInfoController {
 
   private final Logger log = LoggerFactory.getLogger(BuildInfoController.class);
 
+  @Value("${hc.env}")
+  private String hcEnv;
+
+  @Value("${spring.application.name}")
+  private String springApplicationName;
+
   @GetMapping
-  public Map<String, Map<String, String>> getBuildInfo() {
+  public BuildInfoDto getBuildInfo() {
+
+    BuildInfoDto dto =
+        BuildInfoDto.builder().hcEnv(hcEnv).springApplicationName(springApplicationName).build();
 
     Map<String, Map<String, String>> buildInfoMap = new HashMap<>();
 
@@ -59,6 +70,7 @@ public class BuildInfoController {
       throw new BuildInfoException(e);
     }
 
-    return buildInfoMap;
+    dto.setBuildInfo(buildInfoMap);
+    return dto;
   }
 }
