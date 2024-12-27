@@ -14,6 +14,17 @@ logging:
     org.springframework.web.filter: INFO
     org.springframework.web.servlet.DispatcherServlet: INFO
 
+hc:
+  auth:
+    jwt:
+      # 1 day = 86400000
+      expiry-millis: 86400000
+      # if generate-keys is true, override the key files and generate throw-away key pair
+      generate-keys: false
+      # if generate-keys is false, load keys from files
+      public-key-file: jwt/public.pem
+      private-key-file: jwt/private.pem
+
 ---
 spring:
   config:
@@ -47,6 +58,11 @@ spring:
 
 hc:
   env: test
+
+  auth:
+    jwt:
+      # in test profile, generate throw-away keys
+      generate-keys: true
 
 ---
 spring:
