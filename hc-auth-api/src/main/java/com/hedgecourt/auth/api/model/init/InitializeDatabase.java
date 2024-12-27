@@ -7,6 +7,7 @@ import com.hedgecourt.auth.api.model.UserRepository;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,9 +16,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Configuration
 @Profile("dev|prod")
-public class InitializedDatabase {
+public class InitializeDatabase {
 
-  private static final Logger log = LoggerFactory.getLogger(InitializedDatabase.class);
+  private static final Logger log = LoggerFactory.getLogger(InitializeDatabase.class);
+
+  @Value("${hc.auth.init.password}")
+  private String initPassword;
 
   @Bean
   CommandLineRunner initDatabase(ScopeRepository scopeRepository, UserRepository userRepository) {
@@ -59,7 +63,7 @@ public class InitializedDatabase {
                     .firstname("Bilbo")
                     .lastname("Baggins")
                     .email("bbaggins@shire.io")
-                    .password(passwordEncoder.encode("mypass"))
+                    .password(passwordEncoder.encode(initPassword))
                     .scopes(Set.of(userWriteScope, userReadScope, superAdminScope, devReadScope))
                     .build()));
       if (log.isInfoEnabled())
@@ -71,7 +75,7 @@ public class InitializedDatabase {
                     .firstname("Frodo")
                     .lastname("Baggins")
                     .email("mrunderhill@prancingpony.com")
-                    .password(passwordEncoder.encode("mypass"))
+                    .password(passwordEncoder.encode(initPassword))
                     .scopes(Set.of(userReadScope))
                     .build()));
     };

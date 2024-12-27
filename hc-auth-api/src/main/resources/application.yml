@@ -25,6 +25,9 @@ hc:
       public-key-resource: classpath:jwt/public.pem
       private-key-resource: classpath:jwt/private.pem
 
+    init:
+      password: REDACTED
+
 ---
 spring:
   config:
