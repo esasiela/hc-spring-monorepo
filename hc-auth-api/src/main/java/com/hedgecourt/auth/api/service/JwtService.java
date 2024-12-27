@@ -46,11 +46,11 @@ public class JwtService {
 
   @Autowired private ResourceLoader resourceLoader;
 
-  @Value("${hc.auth.jwt.public-key-file}")
-  private String jwtPublicKeyFile;
+  @Value("${hc.auth.jwt.private-key-resource}")
+  private Resource jwtPrivateKeyResource;
 
-  @Value("${hc.auth.jwt.private-key-file}")
-  private String jwtPrivateKeyFile;
+  @Value("${hc.auth.jwt.public-key-resource")
+  private Resource jwtPublicKeyResource;
 
   @Value("${hc.auth.jwt.expiry-millis}")
   private long jwtExpiryMillis;
@@ -108,13 +108,12 @@ public class JwtService {
     }
   }
 
-  private byte[] readBase64DecodedKey(String keyFile) throws IOException {
-    log.debug("readBase64DecodedKey({})", keyFile);
+  private byte[] readBase64DecodedKey(Resource keyResource) throws IOException {
+    if (log.isDebugEnabled()) log.debug("readBase64DecodedKey({})", keyResource.getFilename());
 
     String rawKey = null;
 
-    Resource resource = resourceLoader.getResource("classpath:" + keyFile);
-    try (var inputStream = resource.getInputStream()) {
+    try (var inputStream = keyResource.getInputStream()) {
       rawKey = new String(inputStream.readAllBytes());
     }
     return Base64.getDecoder()
@@ -143,7 +142,8 @@ public class JwtService {
       if (log.isInfoEnabled()) log.info("loading jwt private key");
       jwtSigningKey =
           KeyFactory.getInstance("RSA")
-              .generatePrivate(new PKCS8EncodedKeySpec(readBase64DecodedKey(jwtPrivateKeyFile)));
+              .generatePrivate(
+                  new PKCS8EncodedKeySpec(readBase64DecodedKey(jwtPrivateKeyResource)));
       if (log.isInfoEnabled())
         log.info("loaded jwt private key, algorithm={}", jwtSigningKey.getAlgorithm());
     } catch (IOException ex) {
@@ -174,7 +174,7 @@ public class JwtService {
       if (log.isInfoEnabled()) log.info("loading jwt public key");
       jwtVerificationKey =
           KeyFactory.getInstance("RSA")
-              .generatePublic(new X509EncodedKeySpec(readBase64DecodedKey(jwtPublicKeyFile)));
+              .generatePublic(new X509EncodedKeySpec(readBase64DecodedKey(jwtPublicKeyResource)));
       if (log.isInfoEnabled())
         log.info("loaded jwt public key, algorithm={}", jwtVerificationKey.getAlgorithm());
 
