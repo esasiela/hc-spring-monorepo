@@ -2,6 +2,10 @@ package com.hedgecourt.auth.api;
 
 import com.hedgecourt.auth.api.service.HcAuthUserDetailsService;
 import com.hedgecourt.auth.api.service.PublicPathsMatcherService;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
@@ -104,5 +108,19 @@ public class HcAuthSecurityConfiguration {
     source.registerCorsConfiguration("/**", configuration);
 
     return source;
+  }
+
+  @Bean
+  public OpenAPI customOpenAPI() {
+    return new OpenAPI()
+        .components(
+            new Components()
+                .addSecuritySchemes(
+                    "bearerAuth",
+                    new SecurityScheme()
+                        .type(SecurityScheme.Type.HTTP)
+                        .scheme("bearer")
+                        .bearerFormat("JWT")))
+        .addSecurityItem(new SecurityRequirement().addList("bearerAuth"));
   }
 }

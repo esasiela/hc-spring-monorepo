@@ -2,6 +2,7 @@ package com.hedgecourt.auth.api.controller;
 
 import com.hedgecourt.auth.api.model.Scope;
 import com.hedgecourt.auth.api.service.ScopeService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/scopes")
-// TODO include @SecurityRequirement(name = "bearerAuth")
+@SecurityRequirement(name = "bearerAuth")
 public class ScopeController {
   private static final Logger log = LoggerFactory.getLogger(ScopeController.class);
 
