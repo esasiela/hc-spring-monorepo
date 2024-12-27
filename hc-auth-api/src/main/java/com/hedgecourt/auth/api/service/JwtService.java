@@ -49,7 +49,7 @@ public class JwtService {
   @Value("${hc.auth.jwt.private-key-resource}")
   private Resource jwtPrivateKeyResource;
 
-  @Value("${hc.auth.jwt.public-key-resource")
+  @Value("${hc.auth.jwt.public-key-resource}")
   private Resource jwtPublicKeyResource;
 
   @Value("${hc.auth.jwt.expiry-millis}")

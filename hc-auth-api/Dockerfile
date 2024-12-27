@@ -7,8 +7,6 @@ WORKDIR /app
 
 COPY target/hc-auth-api.jar app.jar
 
-ENV CLASSPATH=/etc/secrets
-
 EXPOSE 8080
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
