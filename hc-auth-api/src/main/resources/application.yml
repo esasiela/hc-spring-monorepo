@@ -21,9 +21,9 @@ hc:
       expiry-millis: 86400000
       # if generate-keys is true, override the key files and generate throw-away key pair
       generate-keys: false
-      # if generate-keys is false, load keys from files
-      public-key-file: jwt/public.pem
-      private-key-file: jwt/private.pem
+      # if generate-keys is false, load keys from resource
+      public-key-resource: classpath:jwt/public.pem
+      private-key-resource: classpath:jwt/private.pem
 
 ---
 spring:
