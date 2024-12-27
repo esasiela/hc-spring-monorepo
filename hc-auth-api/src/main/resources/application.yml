@@ -14,6 +14,12 @@ logging:
     org.springframework.web.filter: INFO
     org.springframework.web.servlet.DispatcherServlet: INFO
 
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+
 hc:
   auth:
     jwt:

@@ -4,6 +4,7 @@ import com.hedgecourt.auth.api.dto.UserCreateDto;
 import com.hedgecourt.auth.api.dto.UserUpdateDto;
 import com.hedgecourt.auth.api.service.UserService;
 import com.hedgecourt.spring.lib.dto.UserDto;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.slf4j.Logger;
@@ -24,8 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/users")
-// TODO add security requirement
-// @SecurityRequirement(name = "bearerAuth")
+@SecurityRequirement(name = "bearerAuth")
 public class UserController {
 
   private static final Logger log = LoggerFactory.getLogger(UserController.class);
