@@ -28,6 +28,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.ForwardedHeaderFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -122,5 +123,15 @@ public class HcAuthSecurityConfiguration {
                         .scheme("bearer")
                         .bearerFormat("JWT")))
         .addSecurityItem(new SecurityRequirement().addList("bearerAuth"));
+  }
+
+  /**
+   * Help swagger work behind a reverse proxy.
+   *
+   * @return
+   */
+  @Bean
+  public ForwardedHeaderFilter forwardedHeaderFilter() {
+    return new ForwardedHeaderFilter();
   }
 }
