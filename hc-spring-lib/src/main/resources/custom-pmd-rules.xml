@@ -1,0 +1,13 @@
+<ruleset name="Custom PMD Rules"
+  xmlns="http://pmd.sf.net/ruleset/2.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://pmd.sf.net/ruleset/2.0.0 https://pmd.github.io/pmd-6.50.0/ruleset_xml_schema.xsd"
+>
+  <description>Custom PMD ruleset for the project.</description>
+
+  <rule ref="rulesets/java/quickstart.xml">
+    <!-- allow single-line 'if' statements -->
+    <exclude name="ControlStatementBraces"/>
+  </rule>
+
+</ruleset>

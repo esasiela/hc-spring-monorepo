@@ -4,7 +4,7 @@ import com.hedgecourt.auth.api.dto.LoginRequestDto;
 import com.hedgecourt.auth.api.dto.LoginResponseDto;
 import com.hedgecourt.auth.api.model.User;
 import com.hedgecourt.auth.api.service.AuthService;
-import com.hedgecourt.auth.api.service.JwtService;
+import com.hedgecourt.spring.lib.service.HcJwtService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,9 +18,9 @@ public class AuthController {
   private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
   private final AuthService authService;
-  private final JwtService jwtService;
+  private final HcJwtService jwtService;
 
-  public AuthController(AuthService authService, JwtService jwtService) {
+  public AuthController(AuthService authService, HcJwtService jwtService) {
     this.authService = authService;
     this.jwtService = jwtService;
   }

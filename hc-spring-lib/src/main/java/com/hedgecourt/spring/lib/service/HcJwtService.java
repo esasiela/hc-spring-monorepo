@@ -1,4 +1,4 @@
-package com.hedgecourt.auth.api.service;
+package com.hedgecourt.spring.lib.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -39,23 +39,26 @@ import org.springframework.stereotype.Service;
  * </pre>
  */
 @Service
-public class JwtService {
-  private static final Logger log = LoggerFactory.getLogger(JwtService.class);
+public class HcJwtService {
+  private static final Logger log = LoggerFactory.getLogger(HcJwtService.class);
 
   public static final String JWT_CLAIM_HC_ENV = "hc/env";
 
   @Autowired private ResourceLoader resourceLoader;
 
-  @Value("${hc.auth.jwt.private-key-resource}")
+  @Value("${hc.jwt.auth-enabled:false}")
+  private boolean authEnabled;
+
+  @Value("${hc.jwt.private-key-resource}")
   private Resource jwtPrivateKeyResource;
 
-  @Value("${hc.auth.jwt.public-key-resource}")
+  @Value("${hc.jwt.public-key-resource}")
   private Resource jwtPublicKeyResource;
 
-  @Value("${hc.auth.jwt.expiry-millis}")
+  @Value("${hc.jwt.expiry-millis}")
   private long jwtExpiryMillis;
 
-  @Value("${hc.auth.jwt.generate-keys}")
+  @Value("${hc.jwt.generate-keys}")
   private boolean generateKeys;
 
   @Value("${hc.env}")
@@ -127,6 +130,11 @@ public class JwtService {
   }
 
   private synchronized void loadPrivateKey() {
+    if (!authEnabled) {
+      if (log.isErrorEnabled()) log.error("Jwt Auth is not enabled, loadPrivateKey() exiting");
+      return;
+    }
+
     if (!needToLoadJwtSigningKey) {
       if (log.isDebugEnabled())
         log.debug("jwtSigningKey does not need to be loaded, skipping readPrivateKey()");
@@ -220,6 +228,11 @@ public class JwtService {
   }
 
   private String buildToken(UserDetails userDetails, Map<String, Object> extraClaims) {
+    if (!authEnabled) {
+      if (log.isErrorEnabled()) log.error("Jwt Auth is not enabled, buildToken() exiting");
+      return null;
+    }
+
     if (needToLoadJwtSigningKey) loadPrivateKey();
 
     Date issuedAt = new Date();

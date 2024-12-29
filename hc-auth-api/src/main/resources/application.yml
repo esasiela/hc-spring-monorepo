@@ -21,18 +21,19 @@ springdoc:
     enabled: true
 
 hc:
-  auth:
-    jwt:
-      # 1 day = 86400000
-      expiry-millis: 86400000
-      # if generate-keys is true, override the key files and generate throw-away key pair
-      generate-keys: false
-      # if generate-keys is false, load keys from resource
-      public-key-resource: classpath:jwt/public.pem
-      private-key-resource: classpath:jwt/private.pem
+  jwt:
+    # enable token creation and signing
+    auth-enabled: true
+    # 1 day = 86400000
+    expiry-millis: 86400000
+    # if generate-keys is true, override the key files and generate throw-away key pair
+    generate-keys: false
+    # if generate-keys is false, load keys from resource
+    public-key-resource: classpath:jwt/public.pem
+    private-key-resource: classpath:jwt/private.pem
 
-    init:
-      password: REDACTED
+  init:
+    password: REDACTED
 
 ---
 spring:
