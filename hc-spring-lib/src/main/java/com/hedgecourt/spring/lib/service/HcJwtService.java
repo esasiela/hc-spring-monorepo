@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +68,7 @@ public class HcJwtService {
 
   private PrivateKey jwtSigningKey = null;
   private PublicKey jwtVerificationKey = null;
+  private String jwtVerificatonPem = null;
 
   private boolean needToLoadJwtSigningKey = true;
   private boolean needToLoadJwtVerificationKey = true;
@@ -111,7 +114,7 @@ public class HcJwtService {
     }
   }
 
-  private byte[] readBase64DecodedKey(Resource keyResource) throws IOException {
+  private RawAndDecodedResource readBase64DecodedKey(Resource keyResource) throws IOException {
     if (log.isDebugEnabled()) log.debug("readBase64DecodedKey({})", keyResource.getFilename());
 
     String rawKey = null;
@@ -119,14 +122,17 @@ public class HcJwtService {
     try (var inputStream = keyResource.getInputStream()) {
       rawKey = new String(inputStream.readAllBytes());
     }
-    return Base64.getDecoder()
-        .decode(
-            rawKey
-                .replace("-----BEGIN PUBLIC KEY-----", "")
-                .replace("-----BEGIN PRIVATE KEY-----", "")
-                .replaceAll(System.lineSeparator(), "")
-                .replace("-----END PUBLIC KEY-----", "")
-                .replace("-----END PRIVATE KEY-----", ""));
+
+    return new RawAndDecodedResource(
+        rawKey,
+        Base64.getDecoder()
+            .decode(
+                rawKey
+                    .replace("-----BEGIN PUBLIC KEY-----", "")
+                    .replace("-----BEGIN PRIVATE KEY-----", "")
+                    .replaceAll(System.lineSeparator(), "")
+                    .replace("-----END PUBLIC KEY-----", "")
+                    .replace("-----END PRIVATE KEY-----", "")));
   }
 
   private synchronized void loadPrivateKey() {
@@ -151,7 +157,8 @@ public class HcJwtService {
       jwtSigningKey =
           KeyFactory.getInstance("RSA")
               .generatePrivate(
-                  new PKCS8EncodedKeySpec(readBase64DecodedKey(jwtPrivateKeyResource)));
+                  new PKCS8EncodedKeySpec(
+                      readBase64DecodedKey(jwtPrivateKeyResource).decodedBytes));
       if (log.isInfoEnabled())
         log.info("loaded jwt private key, algorithm={}", jwtSigningKey.getAlgorithm());
     } catch (IOException ex) {
@@ -180,9 +187,14 @@ public class HcJwtService {
 
     try {
       if (log.isInfoEnabled()) log.info("loading jwt public key");
+      RawAndDecodedResource publicKeyInfo = readBase64DecodedKey(jwtPublicKeyResource);
+
       jwtVerificationKey =
           KeyFactory.getInstance("RSA")
-              .generatePublic(new X509EncodedKeySpec(readBase64DecodedKey(jwtPublicKeyResource)));
+              .generatePublic(new X509EncodedKeySpec(publicKeyInfo.decodedBytes));
+
+      jwtVerificatonPem = publicKeyInfo.rawString;
+
       if (log.isInfoEnabled())
         log.info("loaded jwt public key, algorithm={}", jwtVerificationKey.getAlgorithm());
 
@@ -198,6 +210,11 @@ public class HcJwtService {
     }
   }
 
+  public String getJwtVerificatonPem() {
+    if (needToLoadJwtVerificationKey) loadPublicKey();
+    return jwtVerificatonPem;
+  }
+
   /** Generate throw-away keys for testing. */
   private synchronized void generateTestKeys() {
     try {
@@ -209,6 +226,7 @@ public class HcJwtService {
 
       jwtSigningKey = keyPair.getPrivate();
       jwtVerificationKey = keyPair.getPublic();
+      jwtVerificatonPem = "UNIMPLEMENTED PEM FOR GENERATED KEY";
 
     } catch (NoSuchAlgorithmException ex) {
       if (log.isErrorEnabled()) log.error("Error generating RSA key pair for testing", ex);
@@ -264,5 +282,12 @@ public class HcJwtService {
         .claims(extraClaims)
         .signWith(jwtSigningKey)
         .compact();
+  }
+
+  @Data
+  @AllArgsConstructor
+  static class RawAndDecodedResource {
+    private String rawString;
+    private byte[] decodedBytes;
   }
 }
