@@ -3,8 +3,8 @@ package com.hedgecourt.auth.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hedgecourt.auth.api.dto.JwtAuthenticationErrorResponseDto;
 import com.hedgecourt.auth.api.service.HcAuthUserDetailsService;
-import com.hedgecourt.auth.api.service.JwtService;
 import com.hedgecourt.auth.api.service.PublicPathsMatcherService;
+import com.hedgecourt.spring.lib.service.HcJwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,14 +28,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class HcAuthJwtAuthenticationFilter extends OncePerRequestFilter {
   private static final Logger log = LoggerFactory.getLogger(HcAuthJwtAuthenticationFilter.class);
 
-  private final JwtService jwtService;
+  private final HcJwtService jwtService;
   private final HcAuthUserDetailsService hcAuthUserDetailsService;
   private final PublicPathsMatcherService publicPathsMatcherService;
 
   @Autowired ObjectMapper objectMapper;
 
   public HcAuthJwtAuthenticationFilter(
-      JwtService jwtService,
+      HcJwtService jwtService,
       HcAuthUserDetailsService hcAuthUserDetailsService,
       PublicPathsMatcherService publicPathsMatcherService) {
     this.jwtService = jwtService;

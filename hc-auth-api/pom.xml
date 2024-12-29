@@ -16,7 +16,6 @@
     <jupiter.version>5.11.4</jupiter.version>
     <jackson.version>2.18.2</jackson.version>
     <h2.version>2.3.232</h2.version>
-    <jsonwebtoken.version>0.12.6</jsonwebtoken.version>
     <surefire.version>3.5.2</surefire.version>
   </properties>
 
@@ -69,22 +68,6 @@
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
       <version>${jackson.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>io.jsonwebtoken</groupId>
-      <artifactId>jjwt-api</artifactId>
-      <version>${jsonwebtoken.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.jsonwebtoken</groupId>
-      <artifactId>jjwt-impl</artifactId>
-      <version>${jsonwebtoken.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.jsonwebtoken</groupId>
-      <artifactId>jjwt-jackson</artifactId>
-      <version>${jsonwebtoken.version}</version>
     </dependency>
 
     <dependency>

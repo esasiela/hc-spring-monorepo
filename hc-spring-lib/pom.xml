@@ -12,6 +12,7 @@
     <java.version>17</java.version>
     <lombok.version>1.18.36</lombok.version>
     <spring.boot.version>3.3.5</spring.boot.version>
+    <jsonwebtoken.version>0.12.6</jsonwebtoken.version>
     <jupiter.version>5.11.4</jupiter.version>
     <github.repository_owner>esasiela</github.repository_owner>
   </properties>
@@ -41,6 +42,22 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-security</artifactId>
       <version>${spring.boot.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.jsonwebtoken</groupId>
+      <artifactId>jjwt-api</artifactId>
+      <version>${jsonwebtoken.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jsonwebtoken</groupId>
+      <artifactId>jjwt-impl</artifactId>
+      <version>${jsonwebtoken.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jsonwebtoken</groupId>
+      <artifactId>jjwt-jackson</artifactId>
+      <version>${jsonwebtoken.version}</version>
     </dependency>
 
     <dependency>
@@ -103,7 +120,8 @@
           <skip>false</skip>
           <!-- Path to the PMD ruleset -->
           <rulesets>
-            <ruleset>/rulesets/java/quickstart.xml</ruleset>
+            <!-- <ruleset>/rulesets/java/quickstart.xml</ruleset> -->
+            <ruleset>src/main/resources/custom-pmd-rules.xml</ruleset>
           </rulesets>
           <excludes>
             <exclude>**/HcAuthApiApplication.java</exclude>
