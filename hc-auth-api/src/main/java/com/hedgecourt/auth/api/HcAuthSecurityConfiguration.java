@@ -1,7 +1,7 @@
 package com.hedgecourt.auth.api;
 
 import com.hedgecourt.auth.api.service.HcAuthUserDetailsService;
-import com.hedgecourt.auth.api.service.PublicPathsMatcherService;
+import com.hedgecourt.spring.lib.service.HcPublicPathsMatcherService;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
@@ -38,12 +38,12 @@ public class HcAuthSecurityConfiguration {
   private static final Logger log = LoggerFactory.getLogger(HcAuthSecurityConfiguration.class);
 
   private final HcAuthUserDetailsService hcAuthUserDetailsService;
-  private final PublicPathsMatcherService publicPathsMatcherService;
+  private final HcPublicPathsMatcherService publicPathsMatcherService;
   private final HcAuthJwtAuthenticationFilter hcAuthJwtAuthenticationFilter;
 
   public HcAuthSecurityConfiguration(
       HcAuthUserDetailsService hcAuthUserDetailsService,
-      PublicPathsMatcherService publicPathsMatcherService,
+      HcPublicPathsMatcherService publicPathsMatcherService,
       HcAuthJwtAuthenticationFilter hcAuthJwtAuthenticationFilter) {
     this.hcAuthUserDetailsService = hcAuthUserDetailsService;
     this.publicPathsMatcherService = publicPathsMatcherService;
