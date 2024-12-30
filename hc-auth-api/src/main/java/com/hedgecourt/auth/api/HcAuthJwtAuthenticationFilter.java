@@ -2,7 +2,6 @@ package com.hedgecourt.auth.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hedgecourt.auth.api.dto.JwtAuthenticationErrorResponseDto;
-import com.hedgecourt.auth.api.service.HcAuthUserDetailsService;
 import com.hedgecourt.spring.lib.service.HcJwtService;
 import com.hedgecourt.spring.lib.service.HcPublicPathsMatcherService;
 import jakarta.servlet.FilterChain;
@@ -20,6 +19,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -29,17 +29,17 @@ public class HcAuthJwtAuthenticationFilter extends OncePerRequestFilter {
   private static final Logger log = LoggerFactory.getLogger(HcAuthJwtAuthenticationFilter.class);
 
   private final HcJwtService jwtService;
-  private final HcAuthUserDetailsService hcAuthUserDetailsService;
+  private final UserDetailsService userDetailsService;
   private final HcPublicPathsMatcherService publicPathsMatcherService;
 
   @Autowired ObjectMapper objectMapper;
 
   public HcAuthJwtAuthenticationFilter(
       HcJwtService jwtService,
-      HcAuthUserDetailsService hcAuthUserDetailsService,
+      UserDetailsService userDetailsService,
       HcPublicPathsMatcherService publicPathsMatcherService) {
     this.jwtService = jwtService;
-    this.hcAuthUserDetailsService = hcAuthUserDetailsService;
+    this.userDetailsService = userDetailsService;
     this.publicPathsMatcherService = publicPathsMatcherService;
   }
 
@@ -100,7 +100,7 @@ public class HcAuthJwtAuthenticationFilter extends OncePerRequestFilter {
         return;
       }
 
-      UserDetails userDetails = this.hcAuthUserDetailsService.loadUserByUsername(username);
+      UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
       if (log.isDebugEnabled()) log.debug("userDetails username=[{}]", userDetails.getUsername());
 
       if (!jwtService.isTokenValid(jwt, userDetails)) {

@@ -57,9 +57,15 @@ public class UserController {
   @Secured("user:read")
   UserDto retrieve(@PathVariable String username) {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    if (log.isDebugEnabled()) log.debug("authUser Authorities: {}", auth.getAuthorities());
+    if (log.isDebugEnabled())
+      log.debug(
+          "UserController.retrieve({}) authUser Authorities: {}", username, auth.getAuthorities());
 
-    return userService.retrieve(username);
+    UserDto userDto = userService.retrieve(username);
+
+    if (log.isDebugEnabled()) log.debug("UserController.retrieve({}) have {}", username, userDto);
+
+    return userDto;
   }
 
   @PutMapping("/{username}")

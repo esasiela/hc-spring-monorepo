@@ -1,6 +1,5 @@
 package com.hedgecourt.auth.api;
 
-import com.hedgecourt.auth.api.service.HcAuthUserDetailsService;
 import com.hedgecourt.spring.lib.service.HcPublicPathsMatcherService;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -22,6 +21,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -37,15 +37,15 @@ public class HcAuthSecurityConfiguration {
 
   private static final Logger log = LoggerFactory.getLogger(HcAuthSecurityConfiguration.class);
 
-  private final HcAuthUserDetailsService hcAuthUserDetailsService;
+  private final UserDetailsService userDetailsService;
   private final HcPublicPathsMatcherService publicPathsMatcherService;
   private final HcAuthJwtAuthenticationFilter hcAuthJwtAuthenticationFilter;
 
   public HcAuthSecurityConfiguration(
-      HcAuthUserDetailsService hcAuthUserDetailsService,
+      UserDetailsService userDetailsService,
       HcPublicPathsMatcherService publicPathsMatcherService,
       HcAuthJwtAuthenticationFilter hcAuthJwtAuthenticationFilter) {
-    this.hcAuthUserDetailsService = hcAuthUserDetailsService;
+    this.userDetailsService = userDetailsService;
     this.publicPathsMatcherService = publicPathsMatcherService;
     this.hcAuthJwtAuthenticationFilter = hcAuthJwtAuthenticationFilter;
   }
@@ -65,7 +65,7 @@ public class HcAuthSecurityConfiguration {
   AuthenticationProvider authenticationProvider() {
     DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
 
-    authProvider.setUserDetailsService(hcAuthUserDetailsService);
+    authProvider.setUserDetailsService(userDetailsService);
     authProvider.setPasswordEncoder(passwordEncoder());
 
     return authProvider;
@@ -73,7 +73,10 @@ public class HcAuthSecurityConfiguration {
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    log.info("setting up HC Auth filter chain");
+    if (log.isInfoEnabled()) log.info("setting up HC Auth filter chain");
+
+    if (log.isDebugEnabled())
+      log.debug("typeof userDetailsService [{}]", userDetailsService.getClass().getName());
 
     http.cors(Customizer.withDefaults())
         .csrf(AbstractHttpConfigurer::disable)
