@@ -70,10 +70,9 @@ spring:
 hc:
   env: test
 
-  auth:
-    jwt:
-      # in test profile, generate throw-away keys
-      generate-keys: true
+  jwt:
+    # in test profile, generate throw-away keys
+    generate-keys: true
 
 ---
 spring:
