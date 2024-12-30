@@ -44,6 +44,12 @@ import org.springframework.stereotype.Service;
 public class HcJwtService {
   private static final Logger log = LoggerFactory.getLogger(HcJwtService.class);
 
+  public enum JwtPart {
+    HEADER,
+    PAYLOAD,
+    SIGNATURE
+  }
+
   public static final String JWT_CLAIM_HC_ENV = "hc/env";
 
   @Autowired private ResourceLoader resourceLoader;

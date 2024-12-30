@@ -10,4 +10,10 @@
     <exclude name="ControlStatementBraces"/>
   </rule>
 
+  <rule ref="category/java/codestyle.xml/MethodNamingConventions">
+    <properties>
+      <property name="junit5TestPattern" value="[a-z][a-zA-Z0-9_]*"/>
+    </properties>
+  </rule>
+
 </ruleset>

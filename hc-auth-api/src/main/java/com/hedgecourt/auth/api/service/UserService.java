@@ -69,6 +69,7 @@ public class UserService {
   }
 
   public UserDto retrieve(String username) throws UserNotFoundException {
+    if (log.isDebugEnabled()) log.debug("UserService.retrieve({})", username);
     return mapToUserResponseDto(
         userRepository.findById(username).orElseThrow(() -> new UserNotFoundException(username)));
   }
