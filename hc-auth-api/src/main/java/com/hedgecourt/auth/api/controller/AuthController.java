@@ -43,6 +43,6 @@ public class AuthController {
   public JwtVerificationKeyDto getJwtVerificationKey() {
     if (log.isDebugEnabled()) log.debug("getJwtVerificationKey()");
 
-    return JwtVerificationKeyDto.builder().publicKey(jwtService.getJwtVerificatonPem()).build();
+    return JwtVerificationKeyDto.builder().publicKey(jwtService.getJwtVerificationPem()).build();
   }
 }

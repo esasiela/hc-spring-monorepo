@@ -74,7 +74,7 @@ public class HcJwtService {
 
   private PrivateKey jwtSigningKey = null;
   private PublicKey jwtVerificationKey = null;
-  private String jwtVerificatonPem = null;
+  private String jwtVerificationPem = null;
 
   private boolean needToLoadJwtSigningKey = true;
   private boolean needToLoadJwtVerificationKey = true;
@@ -199,7 +199,7 @@ public class HcJwtService {
           KeyFactory.getInstance("RSA")
               .generatePublic(new X509EncodedKeySpec(publicKeyInfo.decodedBytes));
 
-      jwtVerificatonPem = publicKeyInfo.rawString;
+      jwtVerificationPem = publicKeyInfo.rawString;
 
       if (log.isInfoEnabled())
         log.info("loaded jwt public key, algorithm={}", jwtVerificationKey.getAlgorithm());
@@ -216,9 +216,9 @@ public class HcJwtService {
     }
   }
 
-  public String getJwtVerificatonPem() {
+  public String getJwtVerificationPem() {
     if (needToLoadJwtVerificationKey) loadPublicKey();
-    return jwtVerificatonPem;
+    return jwtVerificationPem;
   }
 
   /** Generate throw-away keys for testing. */
@@ -232,7 +232,7 @@ public class HcJwtService {
 
       jwtSigningKey = keyPair.getPrivate();
       jwtVerificationKey = keyPair.getPublic();
-      jwtVerificatonPem = "UNIMPLEMENTED PEM FOR GENERATED KEY";
+      jwtVerificationPem = "UNIMPLEMENTED PEM FOR GENERATED KEY";
 
     } catch (NoSuchAlgorithmException ex) {
       if (log.isErrorEnabled()) log.error("Error generating RSA key pair for testing", ex);
