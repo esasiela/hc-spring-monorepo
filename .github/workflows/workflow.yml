@@ -206,7 +206,9 @@ jobs:
     if: ${{ github.ref == 'refs/heads/main' }}
 
     runs-on: ubuntu-latest
-    needs: verify
+    needs:
+      - verify
+      - maven-publish-lib
     defaults:
       run:
         working-directory: hc-spring-test
