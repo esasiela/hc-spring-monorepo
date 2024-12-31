@@ -14,13 +14,27 @@
     <spring.boot.version>3.3.5</spring.boot.version>
     <jupiter.version>5.11.4</jupiter.version>
     <github.repository_owner>esasiela</github.repository_owner>
+    <github.repository_name>hc-spring-monorepo</github.repository_name>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
+
+  <repositories>
+    <repository>
+      <id>github</id>
+      <url>https://maven.pkg.github.com/${github.repository_owner}/${github.repository_name}</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+    </repository>
+  </repositories>
 
   <distributionManagement>
     <repository>
       <id>github</id>
-      <url>https://maven.pkg.github.com/${github.repository_owner}/hc-spring-monorepo</url>
+      <url>https://maven.pkg.github.com/${github.repository_owner}/${github.repository_name}</url>
     </repository>
   </distributionManagement>
 
