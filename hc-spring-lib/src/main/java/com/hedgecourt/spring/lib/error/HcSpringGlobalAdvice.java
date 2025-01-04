@@ -1,6 +1,5 @@
-package com.hedgecourt.auth.api.error;
+package com.hedgecourt.spring.lib.error;
 
-import com.hedgecourt.spring.lib.error.UserNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -11,7 +10,13 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
-public class HcAuthExceptionHandler {
+public class HcSpringGlobalAdvice {
+  @ExceptionHandler(BuildInfoException.class)
+  public ResponseEntity<Map<String, Object>> handleBuildInfoException(BuildInfoException ex) {
+    Map<String, Object> response = new HashMap<>();
+    response.put("message", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+  }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<Map<String, String>> validationErrorHandler(
@@ -28,20 +33,5 @@ public class HcAuthExceptionHandler {
             });
 
     return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-  }
-
-  @ExceptionHandler(DuplicateUsernameException.class)
-  public ResponseEntity<Map<String, String>> duplicateUsernameHandler(
-      DuplicateUsernameException ex) {
-    Map<String, String> errors = new HashMap<>();
-    errors.put("message", ex.getMessage());
-    return new ResponseEntity<>(errors, HttpStatus.CONFLICT);
-  }
-
-  @ExceptionHandler(UserNotFoundException.class)
-  public ResponseEntity<Map<String, String>> userNotFoundHandler(UserNotFoundException ex) {
-    Map<String, String> errors = new HashMap<>();
-    errors.put("message", ex.getMessage());
-    return new ResponseEntity<>(errors, HttpStatus.NOT_FOUND);
   }
 }
