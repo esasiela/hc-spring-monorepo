@@ -1,15 +1,24 @@
 package com.hedgecourt.spring.lib.service;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.SignatureException;
+import com.hedgecourt.spring.lib.dto.JwkDto;
+import com.hedgecourt.spring.lib.dto.JwksDto;
+import com.hedgecourt.spring.lib.error.JwtSigningException;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
@@ -18,7 +27,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -50,8 +58,6 @@ public class HcJwtService {
     SIGNATURE
   }
 
-  public static final String JWT_CLAIM_HC_ENV = "hc/env";
-
   @Autowired private ResourceLoader resourceLoader;
 
   @Value("${hc.jwt.auth-enabled:false}")
@@ -69,56 +75,21 @@ public class HcJwtService {
   @Value("${hc.jwt.generate-keys}")
   private boolean generateKeys;
 
+  @Value("${hc.jwt.issuer}")
+  private String issuer;
+
+  @Value("${hc.jwt.key-id}")
+  private String keyId;
+
   @Value("${hc.env}")
   private String hcEnv;
 
-  private PrivateKey jwtSigningKey = null;
-  private PublicKey jwtVerificationKey = null;
-  private String jwtVerificationPem = null;
+  private PrivateKey privateKey = null;
+  private PublicKey publicKey = null;
+  private String publicKeyPem = null;
 
-  private boolean needToLoadJwtSigningKey = true;
-  private boolean needToLoadJwtVerificationKey = true;
-
-  public boolean isTokenValid(String token, UserDetails userDetails) {
-    final String username = extractUsername(token);
-    return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
-  }
-
-  private boolean isTokenExpired(String token) {
-    return extractExpiration(token).before(new Date());
-  }
-
-  public String extractUsername(String token) {
-    return extractClaim(token, Claims::getSubject);
-  }
-
-  private Date extractExpiration(String token) {
-    return extractClaim(token, Claims::getExpiration);
-  }
-
-  public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-    final Claims claims = extractAllClaims(token);
-    return claimsResolver.apply(claims);
-  }
-
-  private Claims extractAllClaims(String token) {
-    if (needToLoadJwtVerificationKey) loadPublicKey();
-
-    try {
-      return Jwts.parser()
-          // TODO .requireXXX for stuff like Issuer, hcEnv, etc
-          .verifyWith(jwtVerificationKey)
-          .build()
-          .parseSignedClaims(token)
-          .getPayload();
-    } catch (SignatureException e) {
-      if (log.isErrorEnabled()) log.error("Invalid JWT signature", e);
-      throw new IllegalArgumentException("Invalid JWT signature", e);
-    } catch (Exception e) {
-      if (log.isErrorEnabled()) log.error("Failed to decode JWT", e);
-      throw new IllegalArgumentException("Failed to decode JWT", e);
-    }
-  }
+  private boolean needToLoadPrivateKey = true;
+  private boolean needToLoadPublicKey = true;
 
   private RawAndDecodedResource readBase64DecodedKey(Resource keyResource) throws IOException {
     if (log.isDebugEnabled()) log.debug("readBase64DecodedKey({})", keyResource.getFilename());
@@ -147,9 +118,9 @@ public class HcJwtService {
       return;
     }
 
-    if (!needToLoadJwtSigningKey) {
+    if (!needToLoadPrivateKey) {
       if (log.isDebugEnabled())
-        log.debug("jwtSigningKey does not need to be loaded, skipping readPrivateKey()");
+        log.debug("privateKey does not need to be loaded, skipping readPrivateKey()");
       return;
     }
 
@@ -160,13 +131,13 @@ public class HcJwtService {
 
     try {
       if (log.isInfoEnabled()) log.info("loading jwt private key");
-      jwtSigningKey =
+      privateKey =
           KeyFactory.getInstance("RSA")
               .generatePrivate(
                   new PKCS8EncodedKeySpec(
                       readBase64DecodedKey(jwtPrivateKeyResource).decodedBytes));
       if (log.isInfoEnabled())
-        log.info("loaded jwt private key, algorithm={}", jwtSigningKey.getAlgorithm());
+        log.info("loaded jwt private key, algorithm={}", privateKey.getAlgorithm());
     } catch (IOException ex) {
       log.error("Error loading jwt private key", ex);
     } catch (NoSuchAlgorithmException ex) {
@@ -175,14 +146,19 @@ public class HcJwtService {
       log.error("Error with private key spec", ex);
     } finally {
       // whether success or failure, don't keep loading this.  errors will fail downstream.
-      needToLoadJwtSigningKey = false;
+      needToLoadPrivateKey = false;
     }
   }
 
   private synchronized void loadPublicKey() {
-    if (!needToLoadJwtVerificationKey) {
+    if (!authEnabled) {
+      if (log.isErrorEnabled()) log.error("Jwt Auth is not enabled, loadPublicKey() exiting");
+      return;
+    }
+
+    if (!needToLoadPublicKey) {
       if (log.isDebugEnabled())
-        log.debug("jwtVerificationKey does not need to be loaded, skipping readPublicKey()");
+        log.debug("publicKey does not need to be loaded, skipping readPublicKey()");
       return;
     }
 
@@ -195,14 +171,14 @@ public class HcJwtService {
       if (log.isInfoEnabled()) log.info("loading jwt public key");
       RawAndDecodedResource publicKeyInfo = readBase64DecodedKey(jwtPublicKeyResource);
 
-      jwtVerificationKey =
+      publicKey =
           KeyFactory.getInstance("RSA")
               .generatePublic(new X509EncodedKeySpec(publicKeyInfo.decodedBytes));
 
-      jwtVerificationPem = publicKeyInfo.rawString;
+      publicKeyPem = publicKeyInfo.rawString;
 
       if (log.isInfoEnabled())
-        log.info("loaded jwt public key, algorithm={}", jwtVerificationKey.getAlgorithm());
+        log.info("loaded jwt public key, algorithm={}", publicKey.getAlgorithm());
 
     } catch (IOException ex) {
       log.error("Error loading jwt public key", ex);
@@ -212,13 +188,36 @@ public class HcJwtService {
       log.error("Error with jwt public key spec", ex);
     } finally {
       // whether success or failure, don't keep loading this. errors will fail downstream.
-      needToLoadJwtVerificationKey = false;
+      needToLoadPublicKey = false;
     }
   }
 
-  public String getJwtVerificationPem() {
-    if (needToLoadJwtVerificationKey) loadPublicKey();
-    return jwtVerificationPem;
+  public JwksDto getJwks() {
+    loadPublicKey();
+
+    JwksDto jwksDto = new JwksDto();
+
+    jwksDto.addJwk(
+        JwkDto.builder()
+            .kty("RSA")
+            .alg("RS256")
+            .use("sig")
+            .kid(keyId)
+            .n(toBase64Url(((RSAPublicKey) publicKey).getModulus()))
+            .e(toBase64Url(((RSAPublicKey) publicKey).getPublicExponent()))
+            .build());
+
+    return jwksDto;
+  }
+
+  private String toBase64Url(BigInteger value) {
+    byte[] byteArray = value.toByteArray();
+    return Base64.getUrlEncoder().withoutPadding().encodeToString(byteArray);
+  }
+
+  public String getPublicKeyPem() {
+    if (needToLoadPublicKey) loadPublicKey();
+    return publicKeyPem;
   }
 
   /** Generate throw-away keys for testing. */
@@ -230,41 +229,39 @@ public class HcJwtService {
       keyPairGenerator.initialize(2048);
       KeyPair keyPair = keyPairGenerator.generateKeyPair();
 
-      jwtSigningKey = keyPair.getPrivate();
-      jwtVerificationKey = keyPair.getPublic();
-      jwtVerificationPem = "UNIMPLEMENTED PEM FOR GENERATED KEY";
+      privateKey = keyPair.getPrivate();
+      publicKey = keyPair.getPublic();
+      publicKeyPem = "UNIMPLEMENTED PEM FOR GENERATED KEY";
 
     } catch (NoSuchAlgorithmException ex) {
       if (log.isErrorEnabled()) log.error("Error generating RSA key pair for testing", ex);
       throw new IllegalStateException("Cannot generate RSA keys for testing", ex);
     } finally {
-      needToLoadJwtVerificationKey = false;
-      needToLoadJwtSigningKey = false;
+      needToLoadPublicKey = false;
+      needToLoadPrivateKey = false;
     }
   }
 
-  public String generateToken(UserDetails userDetails) {
+  public String generateToken(UserDetails userDetails) throws JwtSigningException {
     return generateToken(userDetails, new HashMap<>());
   }
 
-  public String generateToken(UserDetails userDetails, Map<String, Object> extraClaims) {
+  public String generateToken(UserDetails userDetails, Map<String, Object> extraClaims)
+      throws JwtSigningException {
     return buildToken(userDetails, extraClaims);
   }
 
-  private String buildToken(UserDetails userDetails, Map<String, Object> extraClaims) {
-    if (!authEnabled) {
-      if (log.isErrorEnabled()) log.error("Jwt Auth is not enabled, buildToken() exiting");
-      return null;
-    }
+  private String buildToken(UserDetails userDetails, Map<String, Object> extraClaims)
+      throws JwtSigningException {
 
-    if (needToLoadJwtSigningKey) loadPrivateKey();
+    if (needToLoadPrivateKey) loadPrivateKey();
 
     Date issuedAt = new Date();
     Date expiresAt = new Date(System.currentTimeMillis() + jwtExpiryMillis);
 
     if (extraClaims.containsKey("issuedAt")) {
       if (log.isDebugEnabled())
-        log.debug("extra claims include 'issuedAt', using {}", extraClaims.get("issuedAd"));
+        log.debug("extra claims include 'issuedAt', using {}", extraClaims.get("issuedAt"));
       issuedAt = new Date((Long) extraClaims.remove("issuedAt"));
     }
 
@@ -274,20 +271,35 @@ public class HcJwtService {
       expiresAt = new Date((Long) extraClaims.remove("expiresAt"));
     }
 
-    return Jwts.builder()
-        .id(UUID.randomUUID().toString())
-        .issuedAt(issuedAt)
-        .expiration(expiresAt)
-        .claim(JWT_CLAIM_HC_ENV, hcEnv)
-        .subject(userDetails.getUsername())
-        .claim(
-            "authorities",
-            userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList()))
-        .claims(extraClaims)
-        .signWith(jwtSigningKey)
-        .compact();
+    // TODO add extraClaims to JWT
+    JWTClaimsSet claims =
+        new JWTClaimsSet.Builder()
+            .jwtID(UUID.randomUUID().toString())
+            .issueTime(issuedAt)
+            .expirationTime(expiresAt)
+            .subject(userDetails.getUsername())
+            .claim(
+                "scope",
+                userDetails.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList()))
+            .issuer(issuer)
+            .audience("hc:" + hcEnv)
+            .build();
+
+    JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(keyId).build();
+
+    SignedJWT signedJwt = new SignedJWT(header, claims);
+
+    RSASSASigner signer = new RSASSASigner((RSAPrivateKey) privateKey);
+
+    try {
+      signedJwt.sign(signer);
+    } catch (JOSEException e) {
+      throw new JwtSigningException(e.getMessage(), e);
+    }
+
+    return signedJwt.serialize();
   }
 
   @Data

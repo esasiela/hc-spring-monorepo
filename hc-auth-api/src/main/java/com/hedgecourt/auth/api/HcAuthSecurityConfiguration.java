@@ -22,9 +22,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -39,34 +39,36 @@ public class HcAuthSecurityConfiguration {
 
   private final UserDetailsService userDetailsService;
   private final HcPublicPathsMatcherService publicPathsMatcherService;
-  private final HcAuthJwtAuthenticationFilter hcAuthJwtAuthenticationFilter;
+  private final PasswordEncoder passwordEncoder;
 
   public HcAuthSecurityConfiguration(
       UserDetailsService userDetailsService,
       HcPublicPathsMatcherService publicPathsMatcherService,
-      HcAuthJwtAuthenticationFilter hcAuthJwtAuthenticationFilter) {
+      PasswordEncoder passwordEncoder) {
     this.userDetailsService = userDetailsService;
     this.publicPathsMatcherService = publicPathsMatcherService;
-    this.hcAuthJwtAuthenticationFilter = hcAuthJwtAuthenticationFilter;
-  }
-
-  @Bean
-  BCryptPasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
+    this.passwordEncoder = passwordEncoder;
   }
 
   @Bean
   public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
       throws Exception {
+    if (log.isDebugEnabled())
+      log.debug(
+          "authenticationManager() {}", config.getAuthenticationManager().getClass().getName());
     return config.getAuthenticationManager();
   }
 
   @Bean
   AuthenticationProvider authenticationProvider() {
+    if (log.isDebugEnabled())
+      log.debug(
+          "authenticateionProvider() userDetailsService={}",
+          userDetailsService.getClass().getName());
     DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
 
     authProvider.setUserDetailsService(userDetailsService);
-    authProvider.setPasswordEncoder(passwordEncoder());
+    authProvider.setPasswordEncoder(passwordEncoder);
 
     return authProvider;
   }
@@ -76,7 +78,8 @@ public class HcAuthSecurityConfiguration {
     if (log.isInfoEnabled()) log.info("setting up HC Auth filter chain");
 
     if (log.isDebugEnabled())
-      log.debug("typeof userDetailsService [{}]", userDetailsService.getClass().getName());
+      log.debug(
+          "securityFilterChain() userDetailsService={}", userDetailsService.getClass().getName());
 
     http.cors(Customizer.withDefaults())
         .csrf(AbstractHttpConfigurer::disable)
@@ -90,10 +93,21 @@ public class HcAuthSecurityConfiguration {
         .sessionManagement(
             (sessionManagement) ->
                 sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authenticationProvider(authenticationProvider())
-        .addFilterBefore(hcAuthJwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        .authenticationProvider(authenticationProvider());
+
+    http.oauth2ResourceServer(
+        oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
 
     return http.build();
+  }
+
+  @Bean
+  public JwtAuthenticationConverter jwtAuthenticationConverter() {
+    JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+    // TODO add custom claims or role mapping here if needed
+    if (log.isInfoEnabled())
+      log.info("setting up HC Auth jwt authentication converter: {}", converter);
+    return converter;
   }
 
   @Bean
@@ -103,13 +117,16 @@ public class HcAuthSecurityConfiguration {
     configuration.setAllowedOrigins(
         List.of(
             "http://localhost:3000",
+            "http://localhost:3001",
             "http://localhost:8080",
+            "http://localhost:8081",
             "http://localhost:8082",
+            "http://localhost:8083",
+            "http://localhost:8084",
+            "http://localhost:8085",
             "https://hedgecourt.com",
             "https://www.hedgecourt.com"));
     configuration.setAllowedMethods(List.of("GET", "PATCH", "POST", "PUT", "DELETE", "OPTIONS"));
-    // configuration.setAllowedHeaders(List.of("*"));
-    // configuration.setExposedHeaders(List.of("Authorization"));
     configuration.setAllowedHeaders(
         Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
     configuration.setAllowCredentials(true);

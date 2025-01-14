@@ -6,6 +6,12 @@ spring:
     serialization:
       indent_output: true
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8080/.well-known/jwks.json
+
 logging:
   level:
     root: INFO
@@ -31,6 +37,8 @@ hc:
     # if generate-keys is false, load keys from resource
     public-key-resource: classpath:jwt/public.pem
     private-key-resource: classpath:jwt/private.pem
+    issuer: hedge-court-apps
+    key-id: hc-key-id
 
   auth:
     init:
@@ -58,6 +66,11 @@ spring:
   config:
     activate:
       on-profile: test
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8089/.well-known/jwks.json
 
   datasource:
     url: jdbc:h2:mem:hc_db
