@@ -16,11 +16,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
   private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
   private final UserRepository userRepository;
@@ -72,6 +75,13 @@ public class UserService {
     if (log.isDebugEnabled()) log.debug("UserService.retrieve({})", username);
     return mapToUserResponseDto(
         userRepository.findById(username).orElseThrow(() -> new UserNotFoundException(username)));
+  }
+
+  @Override
+  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    return userRepository
+        .findById(username)
+        .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
   }
 
   /**

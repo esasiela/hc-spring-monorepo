@@ -1,11 +1,11 @@
 package com.hedgecourt.auth.api.controller;
 
-import com.hedgecourt.auth.api.dto.JwtVerificationKeyDto;
 import com.hedgecourt.auth.api.dto.LoginRequestDto;
 import com.hedgecourt.auth.api.dto.LoginResponseDto;
 import com.hedgecourt.auth.api.model.User;
 import com.hedgecourt.auth.api.service.AuthService;
 import com.hedgecourt.spring.lib.annotation.HcPublicEndpoint;
+import com.hedgecourt.spring.lib.dto.JwksDto;
 import com.hedgecourt.spring.lib.service.HcJwtService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +39,17 @@ public class AuthController {
   }
 
   @HcPublicEndpoint
-  @GetMapping("/jwtVerificationKey")
-  public JwtVerificationKeyDto getJwtVerificationKey() {
-    if (log.isDebugEnabled()) log.debug("getJwtVerificationKey()");
+  @GetMapping("/.well-known/jwks.json")
+  public JwksDto getWellKnownJwksJson() {
+    if (log.isDebugEnabled()) log.debug("getWellKnownJwksJson()");
 
-    return JwtVerificationKeyDto.builder().publicKey(jwtService.getJwtVerificationPem()).build();
+    return jwtService.getJwks();
+  }
+
+  @HcPublicEndpoint
+  @GetMapping("/.well-known/public.pem")
+  public String getWellKnownPublicPem() {
+    if (log.isDebugEnabled()) log.debug("getWellKnownPublicPem()");
+    return jwtService.getPublicKeyPem();
   }
 }

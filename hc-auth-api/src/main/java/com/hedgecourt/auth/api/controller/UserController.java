@@ -39,7 +39,7 @@ public class UserController {
   // Aggregate root
   // tag::get-aggregate-root[]
   @GetMapping("")
-  @Secured("user:read")
+  @Secured("SCOPE_user:read")
   List<UserDto> list() {
     return userService.list();
   }
@@ -47,14 +47,14 @@ public class UserController {
   // end::get-aggregate-root[]
 
   @PostMapping("")
-  @Secured("user:write")
+  @Secured("SCOPE_user:write")
   ResponseEntity<UserDto> create(@Valid @RequestBody UserCreateDto userDto) {
     UserDto createdUser = userService.create(userDto);
     return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
   }
 
   @GetMapping("/{username}")
-  @Secured("user:read")
+  @Secured("SCOPE_user:read")
   UserDto retrieve(@PathVariable String username) {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     if (log.isDebugEnabled())
@@ -69,13 +69,13 @@ public class UserController {
   }
 
   @PutMapping("/{username}")
-  @Secured("user:write")
+  @Secured("SCOPE_user:write")
   UserDto update(@Valid @RequestBody UserUpdateDto userDto, @PathVariable String username) {
     return userService.update(username, userDto);
   }
 
   @DeleteMapping("/{username}")
-  @Secured("user:write")
+  @Secured("SCOPE_user:write")
   UserDto delete(@PathVariable String username) {
     return userService.delete(username);
   }

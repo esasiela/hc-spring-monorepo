@@ -24,6 +24,9 @@ public class AuthService {
   }
 
   public User authenticate(LoginRequestDto request) {
+    if (log.isDebugEnabled())
+      log.debug("authenticate attempt, username=[{}]", request.getUsername());
+
     Authentication a =
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));

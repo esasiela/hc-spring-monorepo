@@ -12,6 +12,7 @@
     <java.version>17</java.version>
     <lombok.version>1.18.36</lombok.version>
     <spring.boot.version>3.3.5</spring.boot.version>
+    <mockserver.netty.version>5.15.0</mockserver.netty.version>
     <jupiter.version>5.11.4</jupiter.version>
     <github.repository_owner>esasiela</github.repository_owner>
     <github.repository_name>hc-spring-monorepo</github.repository_name>
@@ -57,7 +58,20 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <version>${spring.boot.version}</version>
-      <!-- <scope>test</scope> -->
+      <!-- specifically omit scope=test for a test library
+      <scope>test</scope> -->
+    </dependency>
+
+    <dependency>
+      <groupId>org.mock-server</groupId>
+      <artifactId>mockserver-netty</artifactId>
+      <version>${mockserver.netty.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>io.swagger.core.v3</groupId>
+          <artifactId>swagger-core</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -175,7 +189,9 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.13.0</version>
         <configuration>
-          <compilerArgs>-parameters</compilerArgs>
+          <compilerArgs>
+            <arg>-parameters</arg>
+          </compilerArgs>
           <source>${java.version}</source>
           <target>${java.version}</target>
 

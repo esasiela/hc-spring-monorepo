@@ -1,8 +1,8 @@
 package com.hedgecourt.spring.test;
 
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hedgecourt.spring.lib.model.HcUserDetails;
@@ -16,22 +16,24 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockserver.integration.ClientAndServer;
+import org.mockserver.model.HttpRequest;
+import org.mockserver.model.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -49,7 +51,7 @@ public abstract class HcSpringBaseControllerTest {
 
   @Autowired protected HcJwtService jwtService;
 
-  @MockBean protected UserDetailsService userDetailsService;
+  private ClientAndServer mockServer;
 
   public record EndpointUseCase(
       String requiredScope,
@@ -137,9 +139,23 @@ public abstract class HcSpringBaseControllerTest {
   }
 
   @BeforeEach
-  public void beforeEach() {
+  public void beforeEach() throws JsonProcessingException {
     // RECALL: child beforeEach runs first, parent beforeEach runs next
-    when(userDetailsService.loadUserByUsername(authUser.getUsername())).thenReturn(authUser);
+    mockServer = ClientAndServer.startClientAndServer(8089);
+
+    String jwksJson = objectMapper.writeValueAsString(jwtService.getJwks());
+    mockServer
+        .when(HttpRequest.request().withMethod("GET").withPath("/.well-known/jwks.json"))
+        .respond(HttpResponse.response().withStatusCode(200).withBody(jwksJson));
+  }
+
+  @AfterEach
+  public void afterEach() {
+    if (mockServer != null) {
+      mockServer.stop();
+    }
+
+    log.info("afterEach()");
   }
 
   protected MockHttpServletRequestBuilder getAndApplyMockRequest(
