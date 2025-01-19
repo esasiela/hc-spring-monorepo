@@ -38,7 +38,7 @@ hc:
     public-key-resource: classpath:jwt/public.pem
     private-key-resource: classpath:jwt/private.pem
     issuer: hedge-court-apps
-    key-id: hc-key-id
+    key-id: hc-apps
 
   auth:
     init:
