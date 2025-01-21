@@ -71,6 +71,12 @@ public class UserService implements UserDetailsService {
         .collect(Collectors.toList());
   }
 
+  public List<UserDto> listByScopeName(String scopeName) {
+    return userRepository.findAllByScopeName(scopeName).stream()
+        .map(this::mapToUserResponseDto)
+        .collect(Collectors.toList());
+  }
+
   public UserDto retrieve(String username) throws UserNotFoundException {
     if (log.isDebugEnabled()) log.debug("UserService.retrieve({})", username);
     return mapToUserResponseDto(

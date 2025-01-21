@@ -66,6 +66,11 @@ public class InitializeDatabase {
                   .build());
       if (log.isInfoEnabled()) log.info("Initializing scope: {}", userWriteScope);
 
+      Scope userPublicScope =
+          scopeRepository.save(
+              Scope.builder().name("user:public").description("Flag a user as public").build());
+      if (log.isInfoEnabled()) log.info("Initializing scope: {}", userPublicScope);
+
       /*
       Nav
        */
