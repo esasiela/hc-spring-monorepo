@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -24,5 +25,12 @@ public class HcAuthGlobalAdvice {
     Map<String, String> errors = new HashMap<>();
     errors.put("message", ex.getMessage());
     return new ResponseEntity<>(errors, HttpStatus.NOT_FOUND);
+  }
+
+  @ExceptionHandler(AuthenticationException.class)
+  public ResponseEntity<Map<String, String>> authenticationHandler(AuthenticationException ex) {
+    Map<String, String> errors = new HashMap<>();
+    errors.put("message", ex.getMessage());
+    return new ResponseEntity<>(errors, HttpStatus.UNAUTHORIZED);
   }
 }
