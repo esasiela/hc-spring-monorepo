@@ -63,22 +63,22 @@ public class HcJwtService {
   @Value("${hc.jwt.auth-enabled:false}")
   private boolean authEnabled;
 
-  @Value("${hc.jwt.private-key-resource}")
+  @Value("${hc.jwt.private-key-resource:classpath\\:jwt/private.pem}")
   private Resource jwtPrivateKeyResource;
 
-  @Value("${hc.jwt.public-key-resource}")
+  @Value("${hc.jwt.public-key-resource:classpath\\:jwt/public.pem}")
   private Resource jwtPublicKeyResource;
 
-  @Value("${hc.jwt.expiry-millis}")
+  @Value("${hc.jwt.expiry-millis:86400000}")
   private long jwtExpiryMillis;
 
-  @Value("${hc.jwt.generate-keys}")
+  @Value("${hc.jwt.generate-keys:true}")
   private boolean generateKeys;
 
-  @Value("${hc.jwt.issuer}")
+  @Value("${hc.jwt.issuer:hedge-court-apps}")
   private String issuer;
 
-  @Value("${hc.jwt.key-id}")
+  @Value("${hc.jwt.key-id:hc-apps}")
   private String keyId;
 
   @Value("${hc.env}")

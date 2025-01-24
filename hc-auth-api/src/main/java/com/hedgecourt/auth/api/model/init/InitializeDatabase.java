@@ -71,6 +71,11 @@ public class InitializeDatabase {
               Scope.builder().name("user:public").description("Flag a user as public").build());
       if (log.isInfoEnabled()) log.info("Initializing scope: {}", userPublicScope);
 
+      Scope sandboxReadScope =
+          scopeRepository.save(
+              Scope.builder().name("sandbox:read").description("Sandbox Read access").build());
+      if (log.isInfoEnabled()) log.info("Initializing scope: {}", sandboxReadScope);
+
       /*
       Nav
        */
@@ -179,7 +184,8 @@ public class InitializeDatabase {
                             userReadScope,
                             superAdminScope,
                             devReadScope,
-                            devWriteScope))
+                            devWriteScope,
+                            sandboxReadScope))
                     .build()));
       if (log.isInfoEnabled())
         log.info(
