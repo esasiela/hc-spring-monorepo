@@ -26,7 +26,7 @@ public class UserCreateDto extends UserUpdateDto {
   private String username;
 
   @NotNull(message = "Password is required")
-  @Size(min = 6, max = 32, message = "Password must be between 6-32 characters long")
+  @Size(min = 5, max = 32, message = "Password must be between 6-32 characters long")
   @Pattern(
       regexp = "^[a-zA-Z0-9!@#$%^&*();_+=-]+$",
       message =
