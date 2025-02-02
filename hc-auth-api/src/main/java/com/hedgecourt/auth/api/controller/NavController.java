@@ -54,7 +54,7 @@ public class NavController {
   // end::get-aggregate-root[]
 
   @DeleteMapping("/clobber")
-  @Secured("SCOPE_dev:write")
+  @Secured("SCOPE_admin:write")
   public ResponseEntity<List<NavItemDto>> bulkDelete(Authentication auth) {
     if (log.isInfoEnabled())
       log.info("Processing nav clobber DELETE request (bulk delete), user={}", auth.getName());
@@ -63,7 +63,7 @@ public class NavController {
   }
 
   @PostMapping("/clobber")
-  @Secured("SCOPE_dev:write")
+  @Secured("SCOPE_admin:write")
   public ResponseEntity<List<NavItemDto>> bulkAdd(
       @RequestBody List<NavItemDto> navItems, Authentication auth) {
     if (log.isInfoEnabled())

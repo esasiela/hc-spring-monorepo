@@ -20,6 +20,13 @@ public class HcAuthGlobalAdvice {
     return new ResponseEntity<>(errors, HttpStatus.CONFLICT);
   }
 
+  @ExceptionHandler(DuplicateScopeException.class)
+  public ResponseEntity<Map<String, String>> duplicateScopeHandler(DuplicateScopeException ex) {
+    Map<String, String> errors = new HashMap<>();
+    errors.put("message", ex.getMessage());
+    return new ResponseEntity<>(errors, HttpStatus.CONFLICT);
+  }
+
   @ExceptionHandler(UserNotFoundException.class)
   public ResponseEntity<Map<String, String>> userNotFoundHandler(UserNotFoundException ex) {
     Map<String, String> errors = new HashMap<>();

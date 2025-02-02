@@ -18,7 +18,7 @@ import lombok.experimental.SuperBuilder;
 public class UserCreateDto extends UserUpdateDto {
 
   @NotNull(message = "Username is required")
-  @Size(min = 6, max = 20, message = "Username must be between 6-20 characters long")
+  @Size(min = 5, max = 20, message = "Username must be between 6-20 characters long")
   @Pattern(
       regexp = "^[a-zA-Z][a-zA-Z0-9_-]*$",
       message =
