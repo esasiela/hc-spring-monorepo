@@ -17,10 +17,10 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
-@Profile("dev|prod")
-public class InitializeDatabase {
+@Profile("qa")
+public class InitializeDatabaseQa {
 
-  private static final Logger log = LoggerFactory.getLogger(InitializeDatabase.class);
+  private static final Logger log = LoggerFactory.getLogger(InitializeDatabaseQa.class);
 
   @Value("${hc.auth.init.password}")
   private String initPassword;
@@ -38,6 +38,11 @@ public class InitializeDatabase {
       /*
       Scopes
        */
+      Scope scopeWriteScope =
+          scopeRepository.save(
+              Scope.builder().name("scope:write").description("Scope write access").build());
+      if (log.isInfoEnabled()) log.info("Initializing scope: {}", scopeWriteScope);
+
       Scope superAdminScope =
           scopeRepository.save(
               Scope.builder().name("superadmin").description("Josh Allen #17").build());
@@ -168,9 +173,21 @@ public class InitializeDatabase {
       /*
       Users
        */
+      User mvpUser =
+          userRepository.save(
+              User.builder()
+                  .username("mvp")
+                  .firstname("Josh")
+                  .lastname("Allen")
+                  .email("number17@buffalobills.com")
+                  .password(passwordEncoder.encode(initPassword))
+                  .scopes(Set.of(superAdminScope, scopeWriteScope, userWriteScope))
+                  .build());
+      if (log.isInfoEnabled()) log.info("Initializing {}", mvpUser);
+
       if (log.isInfoEnabled())
         log.info(
-            "Preloading {}",
+            "Initializing {}",
             userRepository.save(
                 User.builder()
                     .username("bilbo")
@@ -189,7 +206,7 @@ public class InitializeDatabase {
                     .build()));
       if (log.isInfoEnabled())
         log.info(
-            "Preloading {}",
+            "Initializing {}",
             userRepository.save(
                 User.builder()
                     .username("frodo")
