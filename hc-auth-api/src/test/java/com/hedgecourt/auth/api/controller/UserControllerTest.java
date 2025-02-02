@@ -475,10 +475,10 @@ public class UserControllerTest extends HcSpringBaseControllerTest {
     "validUser, validPassword, 'john.doe@example.com ', John, Doe", // Trailing space in email
 
     // --- Field Length Boundaries ---
-    "shrt, validPassword, john.doe@example.com, John, Doe", // Username too short (min 6)
+    "shrt, validPassword, john.doe@example.com, John, Doe", // Username too short (min 5)
     "thisUsernameIsWayTooLongForValidation, validPassword, john.doe@example.com, John, Doe",
     // Username too long
-    "validUser, short, john.doe@example.com, John, Doe", // Password too short (min 6)
+    "validUser, shrt, john.doe@example.com, John, Doe", // Password too short (min 5)
     "validUser, thisPasswordIsWayTooLongToBeValidForThisField, john.doe@example.com, John, Doe",
     // Password too long
 
